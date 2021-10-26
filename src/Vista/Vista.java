@@ -91,7 +91,10 @@ public class Vista extends JFrame {
 		crearActionListeners();
 		
 		consola.append("Quantum: " + modelo.getQuantum() + ".\n");
-		consola.append("Frecuencia de reloj: " + modelo.getFrecuenciaReloj() + " ms.\n\n");
+		if(modelo.getFrecuenciaReloj() == -1)
+			consola.append("Reloj: manual\n\n");
+		else
+			consola.append("Frecuencia de reloj: " + modelo.getFrecuenciaReloj() + " ms.\n\n");
 		consola.append("Ingrese \"ayuda\" ó \"?\" para información sobre los posibles comandos.\n\n");
 		
 		String lista = "";		
