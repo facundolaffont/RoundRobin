@@ -1,5 +1,5 @@
 # Descripción
-Pequeño ensayo del funcionamiento de un planificador de corto plazo de tipo RoundRobin.
+Simulador de RoundRobin hecho en Java + Swing, utilizando un patrón simple de MVC.
 
 # Características
 * Uso de reloj automático, con periodo configurable entre 100 ms y 5000 ms.
