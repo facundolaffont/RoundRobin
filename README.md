@@ -12,11 +12,11 @@ Simulador de RoundRobin hecho en Java + Swing, utilizando un patrón simple de M
 Luego de compilar, se ejecuta el main desde la consola, de cualquiera de las siguientes dos formas:
 
 ```sh
-java Main <quantum> <periodo del reloj>
+java RoundRobin <quantum> <periodo del reloj>
 ```
 
 ```sh
-java Main <quantum>
+java RoundRobin <quantum>
 ```
 
 Donde `<quantum>` debe ser reemplazado por un entero mayor a cero, y `<periodo del reloj>` debe ser reemplazado por un entero entre 100 y 5000.

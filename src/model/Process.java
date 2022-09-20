@@ -1,6 +1,6 @@
-package Modelo;
+package model;
 
-public class Proceso {
+public class Process {
 	private int ID;
 	private String descripcion;
 	private int tiempoRequerido;
@@ -8,7 +8,7 @@ public class Proceso {
 	private int tiempoInicial;
 	private int tiempoFinal;
 	
-	public Proceso(int ID, String descripcion, int tiempoRequerido, int relojActual) {
+	public Process(int ID, String descripcion, int tiempoRequerido, int relojActual) {
 		this.ID = ID;
 		this.descripcion = descripcion;
 		this.tiempoRequerido = tiempoRequerido;

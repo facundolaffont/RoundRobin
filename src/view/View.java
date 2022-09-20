@@ -1,4 +1,4 @@
-package Vista;
+package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -14,33 +14,20 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
-import Modelo.RoundRobin;
 
-public class Vista extends JFrame {
-	private static final long serialVersionUID = 1L; // Agregado para quitar el Warning de Eclipse.
-	private Dimension pantalla;
-	private int ancho,
-				alto;
-	private JPanel panelPrincipal;
-	private JScrollPane panelConsola,
-						panelConsolaTablero;
-	private JTextArea 	consola,
-						consolaVentana;
-	private JTextField textoComandos;
-	private DefaultCaret caret;
-	private RoundRobin modelo;
-	private boolean relojAutomatico;
+import model.RoundRobin;
 
+public class View extends JFrame {
 	
-	/* Métodos públicos */
+	/* Public members. */
 	
-	public Vista(RoundRobin modelo, boolean relojAutomatico) {	
+	public View(RoundRobin modelo, boolean relojAutomatico) {	
 		
 		// Vinculación con el modelo y configuración del reloj.
 		this.modelo = modelo;
 		this.relojAutomatico = relojAutomatico;
 		
-		// Creación y configuración de la ventana de la consola.
+		// Creation and configuration of console window.
 		pantalla = Toolkit.getDefaultToolkit().getScreenSize();
 		ancho = 800;
 		alto = 400;
@@ -49,12 +36,12 @@ public class Vista extends JFrame {
 		this.setLocation((pantalla.width / 2) - (ancho / 2), (pantalla.height / 2) - (alto / 2));
 		this.setResizable(false);
 		
-		// Creación y configuración de los paneles de la consola.
+		// Creation and configuration of console panels.
 		panelPrincipal = (JPanel) this.getContentPane();
 		panelPrincipal.setLayout(new BorderLayout());
 		panelPrincipal.setVisible(true);
 		
-		// Creación y configuración de la consola.
+		// Creation and configuracion of console.
 		consola = new JTextArea();
 		consola.setBounds(0, 0, 500, 350);
 		consola.setEditable(false);
@@ -82,7 +69,7 @@ public class Vista extends JFrame {
 		panelPrincipal.add(panelConsola, BorderLayout.WEST);
 		panelPrincipal.add(panelConsolaTablero, BorderLayout.EAST);
 		
-		// Creación y configuración de la caja de texto de la consola.
+		// Creation and configuration of console text box.
 		textoComandos = new JTextField();
 		panelPrincipal.add(textoComandos, BorderLayout.SOUTH);
 		this.setVisible(true);
@@ -108,7 +95,20 @@ public class Vista extends JFrame {
 	}
 	
 	
-	/* Métodos privados */
+	/* Private members. */
+
+	private Dimension pantalla;
+	private int ancho,
+				alto;
+	private JPanel panelPrincipal;
+	private JScrollPane panelConsola,
+						panelConsolaTablero;
+	private JTextArea 	consola,
+						consolaVentana;
+	private JTextField textoComandos;
+	private DefaultCaret caret;
+	private RoundRobin modelo;
+	private boolean relojAutomatico;
 	
 	private void crearActionListeners() {
 		textoComandos.addActionListener(new ActionListener() {
@@ -120,15 +120,15 @@ public class Vista extends JFrame {
 				
 				if(!textoComandos.getText().isEmpty()) {
 					
-					// ayuda, ?
+					// help, ?
 					if(
-						comando.equals("ayuda")
+						comando.equals("help")
 						||
 						comando.equals("?")
 					) {
 						textoComandos.setText("");
 						consola.append("> " + comando + "\n\n");
-						mostrarComandos();
+						showCommands();
 						
 					// clear, cls
 					} else if(
@@ -139,7 +139,7 @@ public class Vista extends JFrame {
 						textoComandos.setText("");
 						consola.setText("");
 					
-					// ingresarProceso(<descripción>, <tiempo de procesamiento>), ip(<descripción>, <tiempo de procesamiento>)
+					// newproc(<description>, <processing time>), proc(<description>, <processing time>)
 					} else if(
 						comando.matches("^ingresarProceso\\([a-zA-Z][a-zA-Z0-9]*, [1-9][0-9]*\\)$")
 						||
@@ -237,19 +237,21 @@ public class Vista extends JFrame {
 		});
 	}
 	
-	private void mostrarComandos() {
-		consola.append("*** Comandos ***\n");
-		consola.append("\n* \"ayuda\" ó \"?\" para mostrar este mensaje.");
-		consola.append("\n* \"clear\" ó \"cls\" para limpiar la consola.");
-		consola.append("\n* \"ingresarProceso(<descripción>, <tiempo de procesamiento>)\" ó \"ip(<descripción>, <tiempo de procesamiento>)\" para ingresar un proceso al round robin.");
-		consola.append("\n* \"mostrarQuantum\" ó \"mq\" para mostrar el valor del Quantum.");
-		consola.append("\n* \"mostrarReloj\" ó \"mr\" para mostrar la frecuencia del reloj.");
-		consola.append("\n* \"mostrarTiempoDeRetornoPromedio\" ó \"mtrp\" para mostrar el tiempo de retorno promedio hasta ahora.");
-		consola.append("\n* \"mostrarTiempoDeEsperaPromedio\" ó \"mtep\" para mostrar el tiempo de retorno promedio hasta ahora.");
-		if (!relojAutomatico)
-			consola.append("\n* \"ciclo\" ó \"c\" para hacer avanzar un ciclo el reloj.");
-		consola.append("\n* \"salir\" para abandonar el juego.");
-		consola.append("\n\n");
+	private void showCommands() {
+		consola.append(
+			"COMMANDS"
+				+ "\n\t* \"help\" or \"?\" to show this message."
+				+ "\n\t* \"clear\" or \"cls\" to clean the console."
+				+ "\n\t* \"newproc(<description>, <processing time>)\" or \"proc(<description>, <processing time>)\" to create a new process."
+				+ "\n\t* \"showquantum\" or \"sq\" to show the quantum value."
+				+ "\n\t* \"showclock\" or \"sc\" to show the clock period."
+				+ "\n\t* \"mrt\" to show current mean return time."
+				+ "\n\t* \"mwt\" to show current mean waiting time."
+		);
+		if (!relojAutomatico) consola.append(
+				"\n\t* \"cycle\" or \"c\" to move the clock one cycle."
+				+ "\n\t* \"exit\" to exit the program."
+		);
 	}
 	
 }

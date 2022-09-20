@@ -1,34 +1,22 @@
-package Modelo;
+package model;
 
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import Controlador.Controlador;
+
+import controller.Controller;
 
 public class RoundRobin {
-	private ArrayList<Proceso> procesosActivos;
-	private ConcurrentLinkedQueue<Proceso> colaDeEspera;
-	private ArrayList<String> listaEventos;
-	private float tiempoPromedioDeRetorno;
-	private float tiempoPromedioDeEspera;
-	private int proximoID;
-	private int contadorReloj;
-	private int quantum;
-	private int frecuenciaReloj;
-	private Controlador controlador;
-	ArrayList<Integer> listaTiemposEspera;
-	ArrayList<Integer> listaTiemposRetorno;
-	
 	
 	/* Métodos públicos */
 	
-	public RoundRobin(int quantum, Controlador controlador) {
+	public RoundRobin(int quantum, Controller controlador) {
 		inicializacion(quantum, controlador);
 		frecuenciaReloj = -1;
 	}
 	
-	public RoundRobin(int quantum, int frecuenciaReloj, Controlador controlador) {	
+	public RoundRobin(int quantum, int frecuenciaReloj, Controller controlador) {	
 		inicializacion(quantum, controlador);
 		this.frecuenciaReloj = frecuenciaReloj;
 		
@@ -53,11 +41,11 @@ public class RoundRobin {
 	}
 	
 	public void agregoAColaDeEspera(String descripcion, int tiempoRequeridoNumerico) {
-		colaDeEspera.add(new Proceso(proximoID++, descripcion, tiempoRequeridoNumerico, contadorReloj));
+		colaDeEspera.add(new Process(proximoID++, descripcion, tiempoRequeridoNumerico, contadorReloj));
 	}
 	
 	public void realizarCiclo() {
-		Proceso procesoNuevo;
+		Process procesoNuevo;
 			
 		if(!colaDeEspera.isEmpty()) {
 		// Hay procesos en cola de espera.
@@ -74,10 +62,10 @@ public class RoundRobin {
 		// No hay procesos en cola de espera, y hay procesos activos.
 			
 			int sumador = 0;
-			for(Proceso p: procesosActivos) sumador += p.getTiempoRestante();
+			for(Process p: procesosActivos) sumador += p.getTiempoRestante();
 			
 			if(sumador > 0)
-				for(Proceso p: procesosActivos) {
+				for(Process p: procesosActivos) {
 					
 					// Brinda la correspondiente atención a cada proceso.
 					int tiempoRestante = p.getTiempoRestante();
@@ -94,9 +82,9 @@ public class RoundRobin {
 					listaEventos.add(p.getID() + "." + contadorReloj);
 				}
 			
-			ArrayList<Proceso> procesosAEliminar = new ArrayList<Proceso>();
+			ArrayList<Process> procesosAEliminar = new ArrayList<Process>();
 			sumador = 0;
-			for(Proceso p: procesosActivos) {
+			for(Process p: procesosActivos) {
 				int tiempoRestante = p.getTiempoRestante();
 				if(tiempoRestante == 0) {
 
@@ -136,7 +124,7 @@ public class RoundRobin {
 		
 		lista += "ID\tTiempo\tDescripción";
 		lista += "\n--\t------\t-----------\n";
-		for(Proceso p: procesosActivos) {
+		for(Process p: procesosActivos) {
 			lista += 
 				"\n" +
 				p.getID() + "\t" +
@@ -165,14 +153,27 @@ public class RoundRobin {
 	
 	
 	/* Métodos privados */
+
+	private ArrayList<Process> procesosActivos;
+	private ConcurrentLinkedQueue<Process> colaDeEspera;
+	private ArrayList<String> listaEventos;
+	private float tiempoPromedioDeRetorno;
+	private float tiempoPromedioDeEspera;
+	private int proximoID;
+	private int contadorReloj;
+	private int quantum;
+	private int frecuenciaReloj;
+	private Controller controlador;
+	private ArrayList<Integer> listaTiemposEspera;
+	private ArrayList<Integer> listaTiemposRetorno;
 	
-	private void inicializacion(int quantum, Controlador controlador) {
+	private void inicializacion(int quantum, Controller controlador) {
 		// Vinculación con el controlador.
 		this.controlador = controlador;
 		
 		// Configuración de propiedades iniciales del RoundRobin.
-		procesosActivos = new ArrayList<Proceso>();
-		colaDeEspera = new ConcurrentLinkedQueue<Proceso>();
+		procesosActivos = new ArrayList<Process>();
+		colaDeEspera = new ConcurrentLinkedQueue<Process>();
 		listaEventos = new ArrayList<String>();
 		listaTiemposEspera = new ArrayList<Integer>();
 		listaTiemposRetorno = new ArrayList<Integer>();
