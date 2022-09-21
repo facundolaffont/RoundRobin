@@ -14,243 +14,223 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
-
 import model.RoundRobin;
 
 public class View extends JFrame {
 	
 	/* Public members. */
 	
-	public View(RoundRobin modelo, boolean relojAutomatico) {	
+	public View(RoundRobin model, boolean automaticClock) {	
 		
-		// Vinculación con el modelo y configuración del reloj.
-		this.modelo = modelo;
-		this.relojAutomatico = relojAutomatico;
+		// Inits.
+		_model = model;
+		_automaticClock = automaticClock;
 		
 		// Creation and configuration of console window.
-		pantalla = Toolkit.getDefaultToolkit().getScreenSize();
-		ancho = 800;
-		alto = 400;
-		this.setSize(ancho, alto);
+		_screen = Toolkit.getDefaultToolkit().getScreenSize();
+		_width = 800;
+		_height = 400;
+		this.setSize(_width, _height);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setLocation((pantalla.width / 2) - (ancho / 2), (pantalla.height / 2) - (alto / 2));
+		this.setLocation((_screen.width / 2) - (_width / 2), (_screen.height / 2) - (_height / 2));
 		this.setResizable(false);
 		
 		// Creation and configuration of console panels.
-		panelPrincipal = (JPanel) this.getContentPane();
-		panelPrincipal.setLayout(new BorderLayout());
-		panelPrincipal.setVisible(true);
+		_mainPanel = (JPanel) this.getContentPane();
+		_mainPanel.setLayout(new BorderLayout());
+		_mainPanel.setVisible(true);
 		
 		// Creation and configuracion of console.
-		consola = new JTextArea();
-		consola.setBounds(0, 0, 500, 350);
-		consola.setEditable(false);
-		consola.setMargin(new Insets(10, 10, 10, 10));
-		consola.setLineWrap(true);
-		consola.setTabSize(1);
-		consola.setBackground(Color.BLACK);
-		consola.setForeground(Color.WHITE);
-		consola.setAutoscrolls(true);
-		consola.setFont(new Font("monospaced", Font.PLAIN, 12));
-		caret = (DefaultCaret) consola.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		consolaVentana = new JTextArea();
-		consolaVentana.setBounds(0, 0, 300, 350);
-		consolaVentana.setEditable(false);
-		consolaVentana.setMargin(new Insets(20, 30, 10, 10));
-		consolaVentana.setLineWrap(true);
-		consolaVentana.setTabSize(5);
-		consolaVentana.setBackground(Color.BLACK);
-		consolaVentana.setForeground(Color.WHITE);
-		consolaVentana.setAutoscrolls(true);
-		consolaVentana.setFont(new Font("monospaced", Font.PLAIN, 12));
-		panelConsola = new JScrollPane(consola, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		panelConsolaTablero = new JScrollPane(consolaVentana, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		panelPrincipal.add(panelConsola, BorderLayout.WEST);
-		panelPrincipal.add(panelConsolaTablero, BorderLayout.EAST);
+		_console = new JTextArea();
+		_console.setBounds(0, 0, 500, 350);
+		_console.setEditable(false);
+		_console.setMargin(new Insets(10, 10, 10, 10));
+		_console.setLineWrap(true);
+		_console.setTabSize(1);
+		_console.setBackground(Color.BLACK);
+		_console.setForeground(Color.WHITE);
+		_console.setAutoscrolls(true);
+		_console.setFont(new Font("monospaced", Font.PLAIN, 12));
+		_caret = (DefaultCaret) _console.getCaret();
+		_caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		_windowConsole = new JTextArea();
+		_windowConsole.setBounds(0, 0, 300, 350);
+		_windowConsole.setEditable(false);
+		_windowConsole.setMargin(new Insets(20, 30, 10, 10));
+		_windowConsole.setLineWrap(true);
+		_windowConsole.setTabSize(5);
+		_windowConsole.setBackground(Color.BLACK);
+		_windowConsole.setForeground(Color.WHITE);
+		_windowConsole.setAutoscrolls(true);
+		_windowConsole.setFont(new Font("monospaced", Font.PLAIN, 12));
+		_consolePanel = new JScrollPane(_console, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		_boardPanel = new JScrollPane(_windowConsole, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		_mainPanel.add(_consolePanel, BorderLayout.WEST);
+		_mainPanel.add(_boardPanel, BorderLayout.EAST);
 		
 		// Creation and configuration of console text box.
-		textoComandos = new JTextField();
-		panelPrincipal.add(textoComandos, BorderLayout.SOUTH);
+		_commandTextBox = new JTextField();
+		_mainPanel.add(_commandTextBox, BorderLayout.SOUTH);
 		this.setVisible(true);
-		textoComandos.grabFocus();
+		_commandTextBox.grabFocus();
 		
-		crearActionListeners();
+		_createActionListener();
 		
-		consola.append("Quantum: " + modelo.getQuantum() + ".\n");
-		if(modelo.getClockFreq() == -1)
-			consola.append("Reloj: manual\n\n");
+		_console.append("Quantum: " + model.getQuantum() + ".");
+		if(model.getClockFreq() == -1)
+			_console.append("\nClock: manual");
 		else
-			consola.append("Frecuencia de reloj: " + modelo.getClockFreq() + " ms.\n\n");
-		consola.append("Ingrese \"ayuda\" ó \"?\" para información sobre los posibles comandos.\n\n");
+			_console.append("\nClock period: " + model.getClockFreq() + " ms.");
+		_console.append("\n\nEnter \"help\" or \"?\" to display available commands.");
 		
-		String lista = "";		
-		lista += "ID\tTiempo\tDescripción";
-		lista += "\n--\t------\t-----------";
-		consolaVentana.setText(lista);
+		String list =
+				   "ID" + "\t" + "Time" + "\t" + "Description" +
+			"\n" + "--" + "\t" + "----" + "\t" + "-----------"
+		;
+		_windowConsole.setText(list);
 	}
 	
-	public void enlistarProcesosActivos(String lista) {
-		consolaVentana.setText(lista);
+	public void enlistarProcesosActivos(String list) {
+		_windowConsole.setText(list);
 	}
 	
 	
 	/* Private members. */
 
-	private Dimension pantalla;
-	private int ancho,
-				alto;
-	private JPanel panelPrincipal;
-	private JScrollPane panelConsola,
-						panelConsolaTablero;
-	private JTextArea 	consola,
-						consolaVentana;
-	private JTextField textoComandos;
-	private DefaultCaret caret;
-	private RoundRobin modelo;
-	private boolean relojAutomatico;
+	private Dimension _screen;
+	private int _width,
+				_height;
+	private JPanel _mainPanel;
+	private JScrollPane _consolePanel,
+						_boardPanel;
+	private JTextArea 	_console,
+						_windowConsole;
+	private JTextField _commandTextBox;
+	private DefaultCaret _caret;
+	private RoundRobin _model;
+	private boolean _automaticClock;
 	
-	private void crearActionListeners() {
-		textoComandos.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String descripcion, tiempoRequerido;
-				String comando = ((JTextField) e.getSource()).getText();
-				int tiempoRequeridoNumerico;
-				
-				if(!textoComandos.getText().isEmpty()) {
-					
-					// help, ?
-					if(
-						comando.equals("help")
-						||
-						comando.equals("?")
-					) {
-						textoComandos.setText("");
-						consola.append("> " + comando + "\n\n");
-						showCommands();
-						
-					// clear, cls
-					} else if(
-						comando.equals("clear")
-						||
-						comando.equals("cls")
-					) {
-						textoComandos.setText("");
-						consola.setText("");
-					
-					// newproc(<description>, <processing time>), proc(<description>, <processing time>)
-					} else if(
-						comando.matches("^ingresarProceso\\([a-zA-Z][a-zA-Z0-9]*, [1-9][0-9]*\\)$")
-						||
-						comando.matches("^ip\\([a-zA-Z][a-zA-Z0-9]*, [1-9][0-9]*\\)$")
-					) {
-						textoComandos.setText("");
-						consola.append("> " + comando + "\n\n");
-						descripcion = comando.substring(comando.indexOf('(') + 1, comando.indexOf(',')); // Obtengo la descripción del proceso.
-						tiempoRequerido = comando.substring(comando.indexOf(',') + 2, comando.indexOf(')')); // Obtengo el tiempo de procesamiento.
-						
-						try {
-							
-							// Se convierte en entero la cadena de texto que contiene al tiempo.
-							tiempoRequeridoNumerico = Integer.parseInt(tiempoRequerido);
-							
-							// Agrego el proceso a la cola de espera.
-							modelo.addToWaitingQueue(descripcion, tiempoRequeridoNumerico);
-							
-						} catch(NumberFormatException f) {
-							f.printStackTrace();
-							modelo.salirConError();
-						}
-					
-					// mostrarQuantum, mq
-					} else if(
-						comando.matches("^mostrarQuantum$")
-						||
-						comando.matches("^mq$")
-					) {
-						textoComandos.setText("");
-						consola.append("> " + comando + "\n\n");
-						consola.append("Quantum: " + Integer.toString(modelo.getQuantum()) + ".\n\n");
-					
-						// mostrarReloj, mr
-					} else if(
-							(
-								comando.matches("^mostrarReloj$")
-								||
-								comando.matches("^mr$")
-							)
-							&&
-							relojAutomatico
-						) {
-							textoComandos.setText("");
-							consola.append("> " + comando + "\n\n");
-							consola.append("Frecuencia del reloj: " + Integer.toString(modelo.getClockFreq()) + " ms.\n\n");
-						
-					// mostrarTiempoDeRetornoPromedio, mtrp
-					} else if(
-						comando.matches("^mostrarTiempoDeRetornoPromedio$")
-						||
-						comando.matches("^mtrp$")
-					) {
-						textoComandos.setText("");
-						consola.append("> " + comando + "\n\n");
-						if(modelo.getAverageReturnTime() == -1) consola.append("Todavía no hay datos.\n\n");
-						else consola.append(Float.toString(modelo.getAverageReturnTime()) + "\n\n");
-							
-					// mostrarTiempoDeEsperaPromedio, mtep
-					} else if(
-						comando.matches("^mostrarTiempoDeEsperaPromedio$")
-						||
-						comando.matches("^mtep$")
-					) {
-						textoComandos.setText("");
-						consola.append("> " + comando + "\n\n");
-						if(modelo.getAverageWaitingTime() == -1) consola.append("Todavía no hay datos.\n\n");
-						else consola.append(Float.toString(modelo.getAverageWaitingTime()) + "\n\n");
-					
-					// ciclo, c
-					} else if(
-						(
-							comando.matches("^ciclo$")
-							||
-							comando.matches("^c$")
-						)
-						&&
-						!relojAutomatico
-					) {
-						textoComandos.setText("");
-						consola.append("> " + comando + "\n\n");
-						modelo.cycle();
-						
-					// salir
-					} else if(comando.equals("salir")) modelo.salirSinError();
-					
-					// Comando incorrecto.
-					else {
-						consola.append("> " + comando + "\n\n");
-						consola.append("El comando que ingresó es incorrecto.\n\n");
-						consola.append("Ingrese \"ayuda\" ó \"?\" para información sobre los posibles comandos.\n\n");
-					}
-				}
+	private void _createActionListener() {
+
+	_commandTextBox.addActionListener(new ActionListener() {
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String description, requiredTime;
+		String command = ( (JTextField) e.getSource() ).getText();
+		int requiredTimeInt;
+		
+		// Do nothing if command textbox is empty.
+		if( _commandTextBox.getText().isEmpty() ) return;
+			
+		// help, ?.
+		if( command.matches("(help|\\?)") ) {
+			_commandTextBox.setText("");
+			_console.append("> " + command);
+			showCommands();
+		}
+			
+		// clear, cls.
+		else if( command.matches("(clear|cls)") ) {
+			_commandTextBox.setText("");
+			_console.setText("");
+		}
+		
+		// proc(<description>, <processing time>).
+		else if( command.matches("^proc\\([a-zA-Z][a-zA-Z0-9]*, [1-9][0-9]*\\)$") ) {
+			_commandTextBox.setText("");
+			_console.append("> " + command);
+			
+			// Gets process description.
+			description = command.substring(
+				command.indexOf('(') + 1,
+				command.indexOf(',')
+			);
+			
+			// Gets processing time.
+			requiredTime = command.substring(
+				command.indexOf(',') + 2,
+				command.indexOf(')')
+			);
+			
+			try {
+				requiredTimeInt = Integer.parseInt(requiredTime);
+				_model.addToWaitingQueue(description, requiredTimeInt);
+			} catch(NumberFormatException f) {
+				f.printStackTrace();
+				_model.exitWithError();
 			}
-		});
-	}
+		}
+		
+		// q (shows Quantum).
+		else if( command.equals("q") ) {
+			_commandTextBox.setText("");
+			_console.append("> " + command);
+			_console.append("\n\nQuantum: " + Integer.toString(_model.getQuantum()) + ".");
+		}
+		
+		// sc (shows clock period).
+		else if( command.equals("sc") && _automaticClock ) {
+			_commandTextBox.setText("");
+			_console.append("> " + command);
+			_console.append("\n\nClock period: " + Integer.toString(_model.getClockFreq()) + " ms.");
+		}
+			
+		// mrt (shows Mean Return Time).
+		else if( command.equals("mrt") ) {
+			_commandTextBox.setText("");
+			_console.append("> " + command);
+			if(_model.getAverageReturnTime() == -1) _console.append("\n\nStill no data.");
+			else _console.append( "\n\n" + Float.toString( _model.getAverageReturnTime() ));
+		}
+				
+		// mwt (shows Mean Waiting Time).
+		else if( command.equals("mwt") ) {
+			_commandTextBox.setText("");
+			_console.append("> " + command);
+			if(_model.getAverageWaitingTime() == -1) _console.append("\n\nStill no data.");
+			else _console.append( "\n\n" + Float.toString( _model.getAverageWaitingTime() ) );
+		}
+		
+		// c (moves a cycle forward).
+		else if( command.equals("c") && !_automaticClock ) {
+			_commandTextBox.setText("");
+			_console.append("> " + command);
+			_model.cycle();
+		}
+			
+		// exit.
+		else if( command.equals("exit") ) _model.exitWithoutError();
+		
+		// Malformed command.
+		else { _console.append(
+			"\n\n> " + command +
+			"\n\nIncorrect command." +
+			"\nEnter \"help\" or \"?\" to display available commands."
+		); }
+
+		_console.append("\n");
+
+	} // public void actionPerformed(ActionEvent e)
+	}); // _commandTextBox.addActionListener
+	} // private void _createActionListener()
 	
 	private void showCommands() {
-		consola.append(
-			"COMMANDS"
-				+ "\n\t* \"help\" or \"?\" to show this message."
-				+ "\n\t* \"clear\" or \"cls\" to clean the console."
-				+ "\n\t* \"newproc(<description>, <processing time>)\" or \"proc(<description>, <processing time>)\" to create a new process."
-				+ "\n\t* \"showquantum\" or \"sq\" to show the quantum value."
-				+ "\n\t* \"showclock\" or \"sc\" to show the clock period."
-				+ "\n\t* \"mrt\" to show current mean return time."
-				+ "\n\t* \"mwt\" to show current mean waiting time."
+		_console.append(
+			"\n\nCOMMANDS" +
+				"\n\t* \"help\" or \"?\" to show this message." +
+				"\n\t* \"clear\" or \"cls\" to clean the console." +
+				"\n\t* \"proc(<description>, <processing time>)\" to create a new process." +
+				"\n\t* \"q\" to show the quantum value." +
+				"\n\t* \"mrt\" to show current mean return time." +
+				"\n\t* \"mwt\" to show current mean waiting time."
 		);
-		if (!relojAutomatico) consola.append(
-				"\n\t* \"cycle\" or \"c\" to move the clock one cycle."
-				+ "\n\t* \"exit\" to exit the program."
+		if (_automaticClock) _console.append(
+				"\n\t* \"sc\" to show the clock period."
+		);
+		if (!_automaticClock) _console.append(
+				"\n\t* \"c\" to move the clock one cycle." +
+				"\n\t* \"exit\" to exit the program."
 		);
 	}
 	

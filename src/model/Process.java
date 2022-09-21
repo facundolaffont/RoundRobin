@@ -1,47 +1,46 @@
 package model;
 
 public class Process {
-	private int ID;
-	private String descripcion;
-	private int tiempoRequerido;
-	private int tiempoRestante;
-	private int tiempoInicial;
-	private int tiempoFinal;
-	
+
+	/* Public members. */
+
 	public Process(int ID, String descripcion, int tiempoRequerido, int relojActual) {
-		this.ID = ID;
-		this.descripcion = descripcion;
-		this.tiempoRequerido = tiempoRequerido;
-		tiempoRestante = tiempoRequerido;
-		this.tiempoInicial = relojActual;
-		tiempoFinal = -1;
+		_ID = ID;
+		_description = descripcion;
+		_requiredTime = tiempoRequerido;
+		_remainingTime = tiempoRequerido;
+		_initialTime = relojActual;
+		_finalTime = -1;
 	}
 	
-	public int getID() {
-		return ID;
-	}
+	public int getID() { return _ID; }
 	
-	public String getDescripcion() {
-		return descripcion;
-	}
+	public String getDescription() { return _description; }
 	
-	public int getTiempoRequerido() {
-		return tiempoRequerido;
-	}
+	public int getRequiredTime() { return _requiredTime; }
 	
-	public int getTiempoRestante() {
-		return tiempoRestante;
-	}
+	public int getRemainingTime() { return _remainingTime; }
 	
-	public void setTiempoRestante(int nuevoTiempo) {
-		tiempoRestante = nuevoTiempo;
-	}
+	public void setRemainingTime(int nuevoTiempo) { _remainingTime = nuevoTiempo; }
 	
-	public void setTiempoFinal(int tiempoFinal) {
-		this.tiempoFinal = tiempoFinal;
-	}
+	public void setFinalTime(int tiempoFinal) { _finalTime = tiempoFinal; }
 	
 	public int calculateReturnTime() {
-		return tiempoFinal == -1 ? -1 : tiempoFinal - tiempoInicial;
+		return
+			_finalTime == -1
+			? -1
+			: _finalTime - _initialTime
+		;
 	}
+
+
+	/* Private members. */
+
+	private int _ID;
+	private String _description;
+	private int _requiredTime;
+	private int _remainingTime;
+	private int _initialTime;
+	private int _finalTime;
+
 }

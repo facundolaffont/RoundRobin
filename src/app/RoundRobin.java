@@ -10,7 +10,7 @@ public class RoundRobin {
 		
 		// Shows instructions if the number of arguments is incorrect.
 		if(args.length < 1 || args.length > 2) {
-			printInstructions();			
+			_printInstructions();			
 			System.exit(0);
 		}
 
@@ -21,7 +21,7 @@ public class RoundRobin {
 			if (quantum <= 0) System.exit(0);
 		}
 		catch(NumberFormatException e) {
-			printInstructions();
+			_printInstructions();
 			System.exit(0);
 		}
 		
@@ -34,7 +34,7 @@ public class RoundRobin {
 				new Controller(quantum, clockPeriod);
 			}
 			catch(NumberFormatException e) {
-				printInstructions();
+				_printInstructions();
 				System.exit(0);
 			}
 		}	
@@ -46,16 +46,16 @@ public class RoundRobin {
 
 	/* Private members. */
 
-	private static void printInstructions() {
+	private static void _printInstructions() {
 		System.out.println(
-			"SYNOPSIS"
-				+ "\n\tjava RoundRobin <quantum> [<timer period>]"
-				+ "\n"
-			+ "\nOPTIONS"
-				+ "\n\tIf two arguments are used, automatic timer is enabled, using the second argument as the timer period."
-				+ "\n\tIf one argument is used, instead, manual timer is enabled."
-				+ "\n"
-				+ "\n\t<quantum> must be an integer greater than cero, and <timer period> must be an integer between 100 and 5000."
+			"\nSYNOPSIS" +
+				"\n\tjava RoundRobin <quantum> [<timer period>]" +
+			
+			"\n\nOPTIONS" +
+				"\n\tIf two arguments are used, automatic timer is enabled, using the second argument as the timer period." +
+				"\n\tIf one argument is used, instead, manual timer is enabled." +
+
+				"\n\n\t<quantum> must be an integer greater than cero, and <timer period> must be an integer between 100 and 5000."
 		);
 	}
 

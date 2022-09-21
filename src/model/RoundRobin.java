@@ -11,36 +11,30 @@ public class RoundRobin {
 	/* Public members. */
 	
 	public RoundRobin(int quantum, Controller controller) {
-		init(quantum, controller);
+		_init(quantum, controller);
 		_clockFreq = -1;
 	}
 	
 	public RoundRobin(int quantum, int clockFreq, Controller controller) {	
-		init(quantum, controller);
+		_init(quantum, controller);
 		_clockFreq = clockFreq;
 		
 		// Creation of timer that'll emulate the clock.
-		createTimer(quantum, clockFreq);
+		_createTimer(quantum, clockFreq);
 	}
 	
-	public float getAverageReturnTime() {
-		return _averageReturnTime;
-	}
+	public float getAverageReturnTime() { return _averageReturnTime; }
 	
-	public float getAverageWaitingTime() {
-		return _averageWaitingTime;
-	}
+	public float getAverageWaitingTime() { return _averageWaitingTime; }
 	
-	public int getQuantum() {
-		return _quantum;
-	}
+	public int getQuantum() { return _quantum; }
 	
-	public int getClockFreq() {
-		return _clockFreq;
-	}
+	public int getClockFreq() { return _clockFreq; }
 	
 	public void addToWaitingQueue(String description, int requiredTime) {
-		_waitQueue.add(new Process(_nextID++, description, requiredTime, _clockCounter));
+		_waitQueue.add(
+			new Process(_nextID++, description, requiredTime, _clockCounter)
+		);
 	}
 	
 	public void cycle() {
@@ -60,20 +54,20 @@ public class RoundRobin {
 		// There are no processes in waiting queue, and there are active processes.
 		} else if(!_activeProcesses.isEmpty()) {
 			int adder = 0;
-			for(Process p: _activeProcesses) adder += p.getTiempoRestante();
+			for(Process p: _activeProcesses) adder += p.getRemainingTime();
 			
 			if(adder > 0)
 				for(Process p: _activeProcesses) {
 					
 					// Gives the corresponding attention to every process.
-					int remainingTime = p.getTiempoRestante();
+					int remainingTime = p.getRemainingTime();
 					if(remainingTime > _quantum) {
 						_clockCounter += _quantum;
-						p.setTiempoRestante(remainingTime - _quantum);
+						p.setRemainingTime(remainingTime - _quantum);
 					} else {
-						_clockCounter += p.getTiempoRestante();
-						p.setTiempoRestante(0);
-						p.setTiempoFinal(_clockCounter);
+						_clockCounter += p.getRemainingTime();
+						p.setRemainingTime(0);
+						p.setFinalTime(_clockCounter);
 					}
 					
 					// Updates the event list.
@@ -83,31 +77,30 @@ public class RoundRobin {
 			ArrayList<Process> processesToEliminate = new ArrayList<Process>();
 			adder = 0;
 			for(Process p: _activeProcesses) {
-				int remainingTime = p.getTiempoRestante();
+				int remainingTime = p.getRemainingTime();
 				if(remainingTime == 0) {
 
 					// Adds times to return and waiting lists.
 					_returnTimesList.add(p.calculateReturnTime());
-					_waitingTimesList.add(p.calculateReturnTime() - p.getTiempoRequerido());
+					_waitingTimesList.add(p.calculateReturnTime() - p.getRequiredTime());
 
 					// Adds process to list of to be eliminated.
 					processesToEliminate.add(p);
 				}
 			}
 			
-			// Si hay algún proceso que se debe eliminar:
+			// There are processes that have to be eliminated.
 			if(!processesToEliminate.isEmpty()) {
 				
-				// Elimino los procesos de la lista de activos.
+				// Eliminates processes from the active processes list.
 				_activeProcesses.removeAll(processesToEliminate);
 				
-				// Calculo el tiempo promedio de espera de los procesos ya finalizados.
+				// Calculates the mean waiting time of already finalized processes.
 				adder = 0;
 				for(int value: _waitingTimesList) adder += value;
 				_averageWaitingTime = ((float) adder / _waitingTimesList.size());
 			
-
-				// Calculo el tiempo promedio de retorno de los procesos ya finalizados.
+				// Calculates the mean return time of already finalized processes.
 				adder = 0;
 				for(int value: _returnTimesList) adder += value;
 				_averageReturnTime = ((float) adder / _returnTimesList.size());
@@ -116,36 +109,29 @@ public class RoundRobin {
 		}
 		
 		
-		/* Se enlistan los procesos activos */
+		/* Active processes are enlisted. */
 		
-		String lista = "";
-		
-		lista += "ID\tTiempo\tDescripción";
-		lista += "\n--\t------\t-----------\n";
+		String activeProcesses = 
+			  "ID" + "\t" + "Time" + "\t" + "Description" +
+			"\n--" + "\t" + "----" + "\t" + "-----------"
+		;
 		for(Process p: _activeProcesses) {
-			lista += 
-				"\n" +
-				p.getID() + "\t" +
-				p.getTiempoRestante() + "\t" +
-				p.getDescripcion()
-			;
+			activeProcesses += "\n" + p.getID() + "\t" + p.getRemainingTime() + "\t" + p.getDescription();
 		}
-		
-		lista += "\n";
 		
 		if(_averageReturnTime > -1) {
-			lista += "\nTiempo promedio de retorno: " + _averageReturnTime;
-			lista += "\nTiempo promedio de espera: " + _averageWaitingTime;
+			activeProcesses += "\nMean return time: " + _averageReturnTime;
+			activeProcesses += "\nMean waiting time: " + _averageWaitingTime;
 		}
 		
-		_controller.mostrarListaDeProcesos(lista);
+		_controller.showProcessesList(activeProcesses);
 	}
 	
-	public void salirConError() {
+	public void exitWithError() {
 		System.exit(1);
 	}
 	
-	public void salirSinError() {
+	public void exitWithoutError() {
 		System.exit(0);
 	}
 	
@@ -165,7 +151,7 @@ public class RoundRobin {
 	private ArrayList<Integer> _waitingTimesList;
 	private ArrayList<Integer> _returnTimesList;
 	
-	private void init(int quantum, Controller controller) {
+	private void _init(int quantum, Controller controller) {
 		_controller = controller;
 		_activeProcesses = new ArrayList<Process>();
 		_waitQueue = new ConcurrentLinkedQueue<Process>();
@@ -179,7 +165,7 @@ public class RoundRobin {
 		_quantum = quantum;
 	}
 	
-	private void createTimer(int quantum, int clockFreq) {
+	private void _createTimer(int quantum, int clockFreq) {
 		Timer timer = new Timer();
 		timer.schedule(
 			new TimerTask() {
@@ -190,4 +176,5 @@ public class RoundRobin {
 			}, clockFreq, clockFreq // Initial clock time, and time between changes, in milliseconds.
 		);
 	}
+	
 }
