@@ -4,115 +4,113 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import controller.Controller;
 
 public class RoundRobin {
 	
-	/* Métodos públicos */
+	/* Public members. */
 	
-	public RoundRobin(int quantum, Controller controlador) {
-		inicializacion(quantum, controlador);
-		frecuenciaReloj = -1;
+	public RoundRobin(int quantum, Controller controller) {
+		init(quantum, controller);
+		_clockFreq = -1;
 	}
 	
-	public RoundRobin(int quantum, int frecuenciaReloj, Controller controlador) {	
-		inicializacion(quantum, controlador);
-		this.frecuenciaReloj = frecuenciaReloj;
+	public RoundRobin(int quantum, int clockFreq, Controller controller) {	
+		init(quantum, controller);
+		_clockFreq = clockFreq;
 		
-		// Creación del timer que emulará el reloj.
-		crearTimer(quantum, frecuenciaReloj);
+		// Creation of timer that'll emulate the clock.
+		createTimer(quantum, clockFreq);
 	}
 	
-	public float getTiempoPromedioDeRetorno() {
-		return tiempoPromedioDeRetorno;
+	public float getAverageReturnTime() {
+		return _averageReturnTime;
 	}
 	
-	public float getTiempoPromedioDeEspera() {
-		return tiempoPromedioDeEspera;
+	public float getAverageWaitingTime() {
+		return _averageWaitingTime;
 	}
 	
 	public int getQuantum() {
-		return quantum;
+		return _quantum;
 	}
 	
-	public int getFrecuenciaReloj() {
-		return frecuenciaReloj;
+	public int getClockFreq() {
+		return _clockFreq;
 	}
 	
-	public void agregoAColaDeEspera(String descripcion, int tiempoRequeridoNumerico) {
-		colaDeEspera.add(new Process(proximoID++, descripcion, tiempoRequeridoNumerico, contadorReloj));
+	public void addToWaitingQueue(String description, int requiredTime) {
+		_waitQueue.add(new Process(_nextID++, description, requiredTime, _clockCounter));
 	}
 	
-	public void realizarCiclo() {
-		Process procesoNuevo;
+	public void cycle() {
+		Process newProcess;
 			
-		if(!colaDeEspera.isEmpty()) {
-		// Hay procesos en cola de espera.
+		// There are processes in waiting queue.
+		if(!_waitQueue.isEmpty()) {
 			
-			// Mientras la cola no esté vacía, pasa los elementos de la cola de
-			// espera a la lista de procesos activos.
-			while(!colaDeEspera.isEmpty()) {
-				procesoNuevo = colaDeEspera.poll();
-				procesosActivos.add(procesoNuevo);
-				listaEventos.add(procesoNuevo.getID() + "." + contadorReloj);
+			// While queue is not empty, elements from the waiting queue to the
+			// active processes list.
+			while(!_waitQueue.isEmpty()) {
+				newProcess = _waitQueue.poll();
+				_activeProcesses.add(newProcess);
+				_eventList.add(newProcess.getID() + "." + _clockCounter);
 			}
 			
-		} else if(!procesosActivos.isEmpty()) {
-		// No hay procesos en cola de espera, y hay procesos activos.
+		// There are no processes in waiting queue, and there are active processes.
+		} else if(!_activeProcesses.isEmpty()) {
+			int adder = 0;
+			for(Process p: _activeProcesses) adder += p.getTiempoRestante();
 			
-			int sumador = 0;
-			for(Process p: procesosActivos) sumador += p.getTiempoRestante();
-			
-			if(sumador > 0)
-				for(Process p: procesosActivos) {
+			if(adder > 0)
+				for(Process p: _activeProcesses) {
 					
-					// Brinda la correspondiente atención a cada proceso.
-					int tiempoRestante = p.getTiempoRestante();
-					if(tiempoRestante > quantum) {
-						contadorReloj += quantum;
-						p.setTiempoRestante(tiempoRestante - quantum);
+					// Gives the corresponding attention to every process.
+					int remainingTime = p.getTiempoRestante();
+					if(remainingTime > _quantum) {
+						_clockCounter += _quantum;
+						p.setTiempoRestante(remainingTime - _quantum);
 					} else {
-						contadorReloj += p.getTiempoRestante();
+						_clockCounter += p.getTiempoRestante();
 						p.setTiempoRestante(0);
-						p.setTiempoFinal(contadorReloj);
+						p.setTiempoFinal(_clockCounter);
 					}
 					
-					// Actualiza la lista de eventos.
-					listaEventos.add(p.getID() + "." + contadorReloj);
+					// Updates the event list.
+					_eventList.add(p.getID() + "." + _clockCounter);
 				}
 			
-			ArrayList<Process> procesosAEliminar = new ArrayList<Process>();
-			sumador = 0;
-			for(Process p: procesosActivos) {
-				int tiempoRestante = p.getTiempoRestante();
-				if(tiempoRestante == 0) {
+			ArrayList<Process> processesToEliminate = new ArrayList<Process>();
+			adder = 0;
+			for(Process p: _activeProcesses) {
+				int remainingTime = p.getTiempoRestante();
+				if(remainingTime == 0) {
 
-					// Agrega los tiempos a las listas de retorno y espera.
-					listaTiemposRetorno.add(p.calcularTiempoRetorno());
-					listaTiemposEspera.add(p.calcularTiempoRetorno() - p.getTiempoRequerido());
+					// Adds times to return and waiting lists.
+					_returnTimesList.add(p.calculateReturnTime());
+					_waitingTimesList.add(p.calculateReturnTime() - p.getTiempoRequerido());
 
-					// Se agrega a la lista de procesos que serán eliminados de la lista de procesos activos.
-					procesosAEliminar.add(p);
+					// Adds process to list of to be eliminated.
+					processesToEliminate.add(p);
 				}
 			}
 			
 			// Si hay algún proceso que se debe eliminar:
-			if(!procesosAEliminar.isEmpty()) {
+			if(!processesToEliminate.isEmpty()) {
 				
 				// Elimino los procesos de la lista de activos.
-				procesosActivos.removeAll(procesosAEliminar);
+				_activeProcesses.removeAll(processesToEliminate);
 				
 				// Calculo el tiempo promedio de espera de los procesos ya finalizados.
-				sumador = 0;
-				for(int valor: listaTiemposEspera) sumador += valor;
-				tiempoPromedioDeEspera = ((float) sumador / listaTiemposEspera.size());
+				adder = 0;
+				for(int value: _waitingTimesList) adder += value;
+				_averageWaitingTime = ((float) adder / _waitingTimesList.size());
 			
 
 				// Calculo el tiempo promedio de retorno de los procesos ya finalizados.
-				sumador = 0;
-				for(int valor: listaTiemposRetorno) sumador += valor;
-				tiempoPromedioDeRetorno = ((float) sumador / listaTiemposRetorno.size());
+				adder = 0;
+				for(int value: _returnTimesList) adder += value;
+				_averageReturnTime = ((float) adder / _returnTimesList.size());
 			}						
 			
 		}
@@ -124,7 +122,7 @@ public class RoundRobin {
 		
 		lista += "ID\tTiempo\tDescripción";
 		lista += "\n--\t------\t-----------\n";
-		for(Process p: procesosActivos) {
+		for(Process p: _activeProcesses) {
 			lista += 
 				"\n" +
 				p.getID() + "\t" +
@@ -135,12 +133,12 @@ public class RoundRobin {
 		
 		lista += "\n";
 		
-		if(tiempoPromedioDeRetorno > -1) {
-			lista += "\nTiempo promedio de retorno: " + tiempoPromedioDeRetorno;
-			lista += "\nTiempo promedio de espera: " + tiempoPromedioDeEspera;
+		if(_averageReturnTime > -1) {
+			lista += "\nTiempo promedio de retorno: " + _averageReturnTime;
+			lista += "\nTiempo promedio de espera: " + _averageWaitingTime;
 		}
 		
-		controlador.mostrarListaDeProcesos(lista);
+		_controller.mostrarListaDeProcesos(lista);
 	}
 	
 	public void salirConError() {
@@ -152,47 +150,44 @@ public class RoundRobin {
 	}
 	
 	
-	/* Métodos privados */
+	/* Private members. */
 
-	private ArrayList<Process> procesosActivos;
-	private ConcurrentLinkedQueue<Process> colaDeEspera;
-	private ArrayList<String> listaEventos;
-	private float tiempoPromedioDeRetorno;
-	private float tiempoPromedioDeEspera;
-	private int proximoID;
-	private int contadorReloj;
-	private int quantum;
-	private int frecuenciaReloj;
-	private Controller controlador;
-	private ArrayList<Integer> listaTiemposEspera;
-	private ArrayList<Integer> listaTiemposRetorno;
+	private ArrayList<Process> _activeProcesses;
+	private ConcurrentLinkedQueue<Process> _waitQueue;
+	private ArrayList<String> _eventList;
+	private float _averageReturnTime;
+	private float _averageWaitingTime;
+	private int _nextID;
+	private int _clockCounter;
+	private int _quantum;
+	private int _clockFreq;
+	private Controller _controller;
+	private ArrayList<Integer> _waitingTimesList;
+	private ArrayList<Integer> _returnTimesList;
 	
-	private void inicializacion(int quantum, Controller controlador) {
-		// Vinculación con el controlador.
-		this.controlador = controlador;
-		
-		// Configuración de propiedades iniciales del RoundRobin.
-		procesosActivos = new ArrayList<Process>();
-		colaDeEspera = new ConcurrentLinkedQueue<Process>();
-		listaEventos = new ArrayList<String>();
-		listaTiemposEspera = new ArrayList<Integer>();
-		listaTiemposRetorno = new ArrayList<Integer>();
-		tiempoPromedioDeRetorno = -1;
-		tiempoPromedioDeEspera = -1;
-		proximoID = 0;
-		contadorReloj = 0;
-		this.quantum = quantum;
+	private void init(int quantum, Controller controller) {
+		_controller = controller;
+		_activeProcesses = new ArrayList<Process>();
+		_waitQueue = new ConcurrentLinkedQueue<Process>();
+		_eventList = new ArrayList<String>();
+		_waitingTimesList = new ArrayList<Integer>();
+		_returnTimesList = new ArrayList<Integer>();
+		_averageReturnTime = -1;
+		_averageWaitingTime = -1;
+		_nextID = 0;
+		_clockCounter = 0;
+		_quantum = quantum;
 	}
 	
-	private void crearTimer(int quantum, int periodoReloj) {
+	private void createTimer(int quantum, int clockFreq) {
 		Timer timer = new Timer();
 		timer.schedule(
 			new TimerTask() {
 				@Override
 				public void run() {
-					realizarCiclo();
+					cycle();
 				}
-			}, periodoReloj, periodoReloj // Tiempo de inicio del reloj, y tiempo entre pulsaciones, en milisegundos.
+			}, clockFreq, clockFreq // Initial clock time, and time between changes, in milliseconds.
 		);
 	}
 }

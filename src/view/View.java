@@ -78,10 +78,10 @@ public class View extends JFrame {
 		crearActionListeners();
 		
 		consola.append("Quantum: " + modelo.getQuantum() + ".\n");
-		if(modelo.getFrecuenciaReloj() == -1)
+		if(modelo.getClockFreq() == -1)
 			consola.append("Reloj: manual\n\n");
 		else
-			consola.append("Frecuencia de reloj: " + modelo.getFrecuenciaReloj() + " ms.\n\n");
+			consola.append("Frecuencia de reloj: " + modelo.getClockFreq() + " ms.\n\n");
 		consola.append("Ingrese \"ayuda\" ó \"?\" para información sobre los posibles comandos.\n\n");
 		
 		String lista = "";		
@@ -156,7 +156,7 @@ public class View extends JFrame {
 							tiempoRequeridoNumerico = Integer.parseInt(tiempoRequerido);
 							
 							// Agrego el proceso a la cola de espera.
-							modelo.agregoAColaDeEspera(descripcion, tiempoRequeridoNumerico);
+							modelo.addToWaitingQueue(descripcion, tiempoRequeridoNumerico);
 							
 						} catch(NumberFormatException f) {
 							f.printStackTrace();
@@ -185,7 +185,7 @@ public class View extends JFrame {
 						) {
 							textoComandos.setText("");
 							consola.append("> " + comando + "\n\n");
-							consola.append("Frecuencia del reloj: " + Integer.toString(modelo.getFrecuenciaReloj()) + " ms.\n\n");
+							consola.append("Frecuencia del reloj: " + Integer.toString(modelo.getClockFreq()) + " ms.\n\n");
 						
 					// mostrarTiempoDeRetornoPromedio, mtrp
 					} else if(
@@ -195,8 +195,8 @@ public class View extends JFrame {
 					) {
 						textoComandos.setText("");
 						consola.append("> " + comando + "\n\n");
-						if(modelo.getTiempoPromedioDeRetorno() == -1) consola.append("Todavía no hay datos.\n\n");
-						else consola.append(Float.toString(modelo.getTiempoPromedioDeRetorno()) + "\n\n");
+						if(modelo.getAverageReturnTime() == -1) consola.append("Todavía no hay datos.\n\n");
+						else consola.append(Float.toString(modelo.getAverageReturnTime()) + "\n\n");
 							
 					// mostrarTiempoDeEsperaPromedio, mtep
 					} else if(
@@ -206,8 +206,8 @@ public class View extends JFrame {
 					) {
 						textoComandos.setText("");
 						consola.append("> " + comando + "\n\n");
-						if(modelo.getTiempoPromedioDeEspera() == -1) consola.append("Todavía no hay datos.\n\n");
-						else consola.append(Float.toString(modelo.getTiempoPromedioDeEspera()) + "\n\n");
+						if(modelo.getAverageWaitingTime() == -1) consola.append("Todavía no hay datos.\n\n");
+						else consola.append(Float.toString(modelo.getAverageWaitingTime()) + "\n\n");
 					
 					// ciclo, c
 					} else if(
@@ -221,7 +221,7 @@ public class View extends JFrame {
 					) {
 						textoComandos.setText("");
 						consola.append("> " + comando + "\n\n");
-						modelo.realizarCiclo();
+						modelo.cycle();
 						
 					// salir
 					} else if(comando.equals("salir")) modelo.salirSinError();

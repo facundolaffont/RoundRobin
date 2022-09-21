@@ -41,7 +41,7 @@ public class Process {
 		this.tiempoFinal = tiempoFinal;
 	}
 	
-	public int calcularTiempoRetorno() {
+	public int calculateReturnTime() {
 		return tiempoFinal == -1 ? -1 : tiempoFinal - tiempoInicial;
 	}
 }
