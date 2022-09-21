@@ -18,7 +18,10 @@ public class RoundRobin {
 		int quantum = 0;
 		try {
 			quantum = Integer.parseInt(args[0]);
-			if (quantum <= 0) System.exit(0);
+			if (quantum <= 0) {
+				_printInstructions();
+				System.exit(0);
+			}
 		}
 		catch(NumberFormatException e) {
 			_printInstructions();
@@ -30,17 +33,22 @@ public class RoundRobin {
 		if(args.length == 2) {
 			try {
 				int clockPeriod = Integer.parseInt(args[1]);
-				if (clockPeriod < 100 || clockPeriod > 5000) System.exit(0);
+				if (clockPeriod < 100 || clockPeriod > 5000) {
+					_printInstructions();
+					System.exit(0);
+				}
 				new Controller(quantum, clockPeriod);
 			}
 			catch(NumberFormatException e) {
 				_printInstructions();
 				System.exit(0);
 			}
-		}	
-		
-		// Controller is created with one argument.
-		new Controller(quantum);
+		} else {
+
+			// Controller is created with one argument.
+			new Controller(quantum);
+
+		}
 	}
 	
 

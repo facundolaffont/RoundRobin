@@ -81,7 +81,7 @@ public class View extends JFrame {
 			_console.append("\nClock: manual");
 		else
 			_console.append("\nClock period: " + model.getClockFreq() + " ms.");
-		_console.append("\n\nEnter \"help\" or \"?\" to display available commands.");
+		_console.append("\n\nEnter \"help\" or \"?\" to display available commands.\n\n");
 		
 		String list =
 				   "ID" + "\t" + "Time" + "\t" + "Description" +
@@ -90,9 +90,7 @@ public class View extends JFrame {
 		_windowConsole.setText(list);
 	}
 	
-	public void enlistarProcesosActivos(String list) {
-		_windowConsole.setText(list);
-	}
+	public void enlistarProcesosActivos(String list) { _windowConsole.setText(list); }
 	
 	
 	/* Private members. */
@@ -111,9 +109,7 @@ public class View extends JFrame {
 	private boolean _automaticClock;
 	
 	private void _createActionListener() {
-
 	_commandTextBox.addActionListener(new ActionListener() {
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String description, requiredTime;
@@ -126,8 +122,8 @@ public class View extends JFrame {
 		// help, ?.
 		if( command.matches("(help|\\?)") ) {
 			_commandTextBox.setText("");
-			_console.append("> " + command);
-			showCommands();
+			_console.append("\n> " + command);
+			_showCommands();
 		}
 			
 		// clear, cls.
@@ -139,7 +135,7 @@ public class View extends JFrame {
 		// proc(<description>, <processing time>).
 		else if( command.matches("^proc\\([a-zA-Z][a-zA-Z0-9]*, [1-9][0-9]*\\)$") ) {
 			_commandTextBox.setText("");
-			_console.append("> " + command);
+			_console.append("\n> " + command);
 			
 			// Gets process description.
 			description = command.substring(
@@ -165,21 +161,21 @@ public class View extends JFrame {
 		// q (shows Quantum).
 		else if( command.equals("q") ) {
 			_commandTextBox.setText("");
-			_console.append("> " + command);
+			_console.append("\n> " + command);
 			_console.append("\n\nQuantum: " + Integer.toString(_model.getQuantum()) + ".");
 		}
 		
 		// sc (shows clock period).
 		else if( command.equals("sc") && _automaticClock ) {
 			_commandTextBox.setText("");
-			_console.append("> " + command);
+			_console.append("\n> " + command);
 			_console.append("\n\nClock period: " + Integer.toString(_model.getClockFreq()) + " ms.");
 		}
 			
 		// mrt (shows Mean Return Time).
 		else if( command.equals("mrt") ) {
 			_commandTextBox.setText("");
-			_console.append("> " + command);
+			_console.append("\n> " + command);
 			if(_model.getAverageReturnTime() == -1) _console.append("\n\nStill no data.");
 			else _console.append( "\n\n" + Float.toString( _model.getAverageReturnTime() ));
 		}
@@ -187,7 +183,7 @@ public class View extends JFrame {
 		// mwt (shows Mean Waiting Time).
 		else if( command.equals("mwt") ) {
 			_commandTextBox.setText("");
-			_console.append("> " + command);
+			_console.append("\n> " + command);
 			if(_model.getAverageWaitingTime() == -1) _console.append("\n\nStill no data.");
 			else _console.append( "\n\n" + Float.toString( _model.getAverageWaitingTime() ) );
 		}
@@ -195,7 +191,7 @@ public class View extends JFrame {
 		// c (moves a cycle forward).
 		else if( command.equals("c") && !_automaticClock ) {
 			_commandTextBox.setText("");
-			_console.append("> " + command);
+			_console.append("\n> " + command);
 			_model.cycle();
 		}
 			
@@ -204,7 +200,7 @@ public class View extends JFrame {
 		
 		// Malformed command.
 		else { _console.append(
-			"\n\n> " + command +
+			"\n> " + command +
 			"\n\nIncorrect command." +
 			"\nEnter \"help\" or \"?\" to display available commands."
 		); }
@@ -215,7 +211,7 @@ public class View extends JFrame {
 	}); // _commandTextBox.addActionListener
 	} // private void _createActionListener()
 	
-	private void showCommands() {
+	private void _showCommands() {
 		_console.append(
 			"\n\nCOMMANDS" +
 				"\n\t* \"help\" or \"?\" to show this message." +

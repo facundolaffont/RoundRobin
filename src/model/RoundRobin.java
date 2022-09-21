@@ -120,20 +120,18 @@ public class RoundRobin {
 		}
 		
 		if(_averageReturnTime > -1) {
-			activeProcesses += "\nMean return time: " + _averageReturnTime;
-			activeProcesses += "\nMean waiting time: " + _averageWaitingTime;
+			activeProcesses +=
+				"\n\nMean return time: " + _averageReturnTime +
+				"\nMean waiting time: " + _averageWaitingTime
+			;
 		}
 		
 		_controller.showProcessesList(activeProcesses);
 	}
 	
-	public void exitWithError() {
-		System.exit(1);
-	}
+	public void exitWithError() { System.exit(1); }
 	
-	public void exitWithoutError() {
-		System.exit(0);
-	}
+	public void exitWithoutError() { System.exit(0); }
 	
 	
 	/* Private members. */
