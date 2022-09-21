@@ -21,17 +21,17 @@ If `<clock period>` is omitted, manual clock is used.
 # App view examples
 Initial window using automatic clock:
 <p align="center">
-  <img src="https://raw.githubusercontent.com/facundolaffont/simulador-de-round-robin/refactoring-and-translation/img/autoClockInitView.png"/>
+  <img src="https://raw.githubusercontent.com/facundolaffont/round-robin-simulator/main/img/autoClockInitView.png"/>
 </p>
 
 Initial window using manual clock:
 <p align="center">
-  <img src="https://raw.githubusercontent.com/facundolaffont/simulador-de-round-robin/refactoring-and-translation/img/manualClockInitView.png"/>
+  <img src="https://raw.githubusercontent.com/facundolaffont/round-robin-simulator/main/img/manualClockInitView.png"/>
 </p>
 
 Processes listing and mean times:
 <p align="center">
-  <img src="https://raw.githubusercontent.com/facundolaffont/simulador-de-round-robin/refactoring-and-translation/img/processesAndMeanTimes.png"/>
+  <img src="https://raw.githubusercontent.com/facundolaffont/round-robin-simulator/main/img/processesAndMeanTimes.png"/>
 </p>
 
 # Next
